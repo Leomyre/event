@@ -17,6 +17,11 @@
         </div>
     </div>
 
+    <div class="card p-6 mb-8">
+        <h2 class="text-xl font-semibold text-primary mb-4">Statistiques des événements</h2>
+        <canvas id="eventsChart" width="400" height="200"></canvas>
+    </div>
+
     <div class="card overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
@@ -47,4 +52,38 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Données dynamiques depuis le backend
+    const eventTitles = JSON.parse('{{ event_titles_json|escapejs }}');
+    const participantCounts = JSON.parse('{{ participant_counts_json|escapejs }}');
+
+    console.log("Event Titles:", eventTitles);
+    console.log("Participant Counts:", participantCounts);
+
+    const ctx = document.getElementById('eventsChart').getContext('2d');
+    const eventsChart = new Chart(ctx, {
+        type: 'bar', // Type de graphique
+        data: {
+            labels: eventTitles,
+            datasets: [{
+                label: 'Participants par événement',
+                data: participantCounts,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
 {% endblock %}

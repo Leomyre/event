@@ -2,9 +2,10 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic.edit import UpdateView
-from src import settings
+import json
 from .models import Event
 from .forms import EventForm
+from django.utils.safestring import mark_safe
 
 @login_required
 def event_create(request):
@@ -28,9 +29,15 @@ def event_list(request):
 
 @login_required
 def my_events(request):
-    # Filtre pour afficher les événements créés par l'organisateur (l'utilisateur connecté)
     events = Event.objects.filter(organizer=request.user)
-    return render(request, 'events/organisateur/my_events.html', {'events': events})
+    event_titles = [event.title for event in events]
+    participant_counts = [event.number_of_participants() for event in events]
+
+    return render(request, 'events/organisateur/my_events.html', {
+        'events': events,
+        'event_titles_json': mark_safe(json.dumps(event_titles)),
+        'participant_counts_json': mark_safe(json.dumps(participant_counts)),
+    })
 
 from django.contrib.auth import get_user_model
 
