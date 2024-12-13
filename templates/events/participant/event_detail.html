@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="card overflow-hidden">
+        <div class="p-6">
+            <h1 class="text-3xl font-bold text-primary mb-4">{{ event.title }}</h1>
+            
+            <div class="flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <div class="flex items-center mr-6 mb-2">
+                    <i data-feather="calendar" class="h-4 w-4 mr-2"></i>
+                    <span>{{ event.date|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="flex items-center mr-6 mb-2">
+                    <i data-feather="map-pin" class="h-4 w-4 mr-2"></i>
+                    <span>{{ event.location }}</span>
+                </div>
+                <div class="flex items-center mb-2">
+                    <i data-feather="user" class="h-4 w-4 mr-2"></i>
+                    <span>Organisé par {{ event.organizer.username }}</span>
+                </div>
+            </div>
+
+            <div class="prose dark:prose-invert mb-6">
+                {{ event.description|linebreaks }}
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-primary mb-2">Participants ({{ event.participants.count }})</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for participant in event.participants.all %}
+                        <div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
+                            {% if participant.profile.photo %}
+                                <img src="{{ participant.profile.photo.url }}" alt="{{ participant.username }}" class="h-6 w-6 rounded-full object-cover mr-2">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ participant.username }}&background=random" alt="{{ participant.username }}" class="h-6 w-6 rounded-full mr-2">
+                            {% endif %}
+                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ participant.username }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="text-gray-500 dark:text-gray-400">Aucun participant pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                {% if user == event.organizer %}
+                    <div class="flex space-x-4">
+                        <a href="{% url 'event_update' event.id %}" class="btn-primary">Modifier l'événement</a>
+                        <form method="post" action="{% url 'event_delete' event.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-danger">Supprimer l'événement</button>
+                        </form>
+                    </div>
+                {% elif user in event.participants.all %}
+                    <form method="post" action="{% url 'leave_event' event.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary">Se désinscrire de l'événement</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'join_event' event.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-primary">S'inscrire à l'événement</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <p class="text-gray-500 dark:text-gray-400">Connectez-vous pour participer à cet événement.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

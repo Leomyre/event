@@ -1,0 +1,59 @@
+{% extends "../../base.html" %}
+
+{% block title %}Discussion - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="card overflow-hidden">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-primary mb-6">Discussion de groupe pour {{ event.title }}</h1>
+
+            <div class="space-y-4 mb-6 max-h-96 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                {% for message in messages %}
+                    <div class="flex items-start space-x-3">
+                        {% if message.sender.profile.photo %}
+                            <img src="{{ message.sender.profile.photo.url }}" alt="{{ message.sender.username }}" class="h-10 w-10 rounded-full object-cover">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ message.sender.username }}&background=random" alt="{{ message.sender.username }}" class="h-10 w-10 rounded-full">
+                        {% endif %}
+                        <div class="flex-1">
+                            <div class="bg-white dark:bg-gray-700 rounded-lg p-3 shadow">
+                                <p class="font-semibold text-gray-900 dark:text-white">{{ message.sender.username }}</p>
+                                <p class="text-gray-700 dark:text-gray-300">{{ message.content }}</p>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ message.timestamp|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-center text-gray-500 dark:text-gray-400">Aucun message dans cette discussion.</p>
+                {% endfor %}
+            </div>
+
+            {% if user.is_authenticated %}
+                <form method="post" class="mt-6">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Votre message</label>
+                        <textarea 
+                            name="content" 
+                            id="content" 
+                            rows="3" 
+                            class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-primary dark:bg-gray-800 dark:text-white dark:border-gray-600" 
+                            placeholder="Écrivez votre message..."
+                            required
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        Envoyer
+                    </button>
+                </form>
+            {% else %}
+                <p class="text-center text-gray-500 dark:text-gray-400">
+                    <a href="{% url 'login' %}" class="text-primary hover:underline">Connectez-vous</a> pour envoyer des messages.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

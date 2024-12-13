@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Participants - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="card p-8">
+        <h2 class="text-2xl font-bold text-primary mb-6">Participants de l'événement "{{ event.title }}"</h2>
+        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for participant in participants %}
+            <li class="py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    {% if participant.profile.photo %}
+                        <img src="{{ participant.profile.photo.url }}" alt="{{ participant.username }}" class="h-10 w-10 rounded-full object-cover mr-3">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ participant.username }}&background=random" alt="{{ participant.username }}" class="h-10 w-10 rounded-full mr-3">
+                    {% endif %}
+                    <span class="text-gray-800 dark:text-gray-200">{{ participant.username }}</span>
+                </div>
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="participant_id" value="{{ participant.id }}">
+                    <button type="submit" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 focus:outline-none">
+                        Expulser
+                    </button>
+                </form>
+            </li>
+            {% empty %}
+            <li class="py-4 text-center text-gray-500 dark:text-gray-400">Aucun participant pour cet événement.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

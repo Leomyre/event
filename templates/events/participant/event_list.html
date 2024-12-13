@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des événements{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold text-primary mb-6">Événements à venir</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for event in events %}
+        <div class="card overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-primary mb-2">{{ event.title }}</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">{{ event.description|truncatewords:20 }}</p>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <i data-feather="calendar" class="h-4 w-4 mr-2"></i>
+                    <span>{{ event.date|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <i data-feather="map-pin" class="h-4 w-4 mr-2"></i>
+                    <span>{{ event.location }}</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <i data-feather="user" class="h-4 w-4 mr-2"></i>
+                    <span>Organisé par {{ event.organizer.username }}</span>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    
+                    {% if user.is_authenticated %}
+                        {% if user in event.participants.all %}
+                            <form method="post" action="{% url 'leave_event' event.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                                    Se désinscrire
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{% url 'join_event' event.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300">
+                                    S'inscrire
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <p class="text-gray-500 dark:text-gray-400">Aucun événement à venir pour le moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="mt-8 flex justify-center">
+        <nav class="inline-flex rounded-md shadow">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">
+                    Précédent
+                </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="px-3 py-2 border border-gray-300 bg-primary text-sm font-medium text-white dark:bg-primary-dark">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">
+                    Suivant
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

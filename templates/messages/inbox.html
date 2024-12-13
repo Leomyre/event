@@ -1,0 +1,83 @@
+{% extends '../base.html' %}
+
+{% block title %}Boîte de Réception{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-primary">Vos Messages</h2>
+        <a href="{% url 'send_message' %}" class="btn-primary">
+            Nouvelle conversation
+        </a>
+    </div>
+
+    <div class="card">
+        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for user, messages in user_conversations.items %}
+                <li class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 relative">
+                    <a href="{% url 'conversation' user.id %}" class="block">
+                        <div class="flex items-center">
+                            {% if user.profile.photo %}
+                                <img class="h-12 w-12 rounded-full object-cover" src="{{ user.profile.photo.url }}" alt="{{ user.username }}">
+                            {% else %}
+                                <img class="h-12 w-12 rounded-full bg-gray-300 dark:bg-gray-600" src="https://ui-avatars.com/api/?name={{ user.username }}&background=random" alt="{{ user.username }}">
+                            {% endif %}
+                            <div class="ml-4 flex-grow">
+                                <p class="text-sm font-medium text-primary">{{ user.username }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                    {% if messages %}
+                                        {{ messages.0.content }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none" onclick="toggleActionMenu('{{ user.id }}')">
+                        <i data-feather="more-vertical" class="h-5 w-5"></i>
+                    </button>
+
+                    <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 dark:bg-gray-800" id="action-menu-{{ user.id }}">
+                        <button onclick="deleteConversation('{{ user.id }}')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">Supprimer la conversation</button>
+                    </div>
+                </li>
+            {% empty %}
+                <li class="text-center text-gray-500 dark:text-gray-400 py-4">Aucune conversation.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    function toggleActionMenu(userId) {
+        const menu = document.getElementById(`action-menu-${userId}`);
+        const allMenus = document.querySelectorAll('[id^="action-menu-"]');
+        
+        allMenus.forEach(m => {
+            if (m.id !== `action-menu-${userId}`) {
+                m.classList.add('hidden');
+            }
+        });
+        
+        menu.classList.toggle('hidden');
+    }
+
+    function deleteConversation(userId) {
+        if (confirm("Voulez-vous vraiment supprimer cette conversation ?")) {
+            var deleteUrl = `/inbox/conversation/delete/`+userId+`/`;
+
+            window.location.href = deleteUrl;
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        const isInsideButton = event.target.closest('button');
+        const isInsideMenu = event.target.closest('[id^="action-menu-"]');
+        
+        if (!isInsideButton && !isInsideMenu) {
+            const allMenus = document.querySelectorAll('[id^="action-menu-"]');
+            allMenus.forEach(menu => menu.classList.add('hidden'));
+        }
+    });
+</script>
+{% endblock %}

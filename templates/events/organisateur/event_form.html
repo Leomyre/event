@@ -1,0 +1,77 @@
+{% extends '../../base.html' %}
+
+{% block title %}{% if form.instance.pk %}Modifier{% else %}Créer{% endif %} un événement{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="card overflow-hidden">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-primary mb-6">{% if form.instance.pk %}Modifier{% else %}Créer{% endif %} un événement</h1>
+            <form method="post" class="space-y-6" novalidate>
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Erreur!</strong>
+                        <span class="block sm:inline">Veuillez corriger les erreurs ci-dessous.</span>
+                    </div>
+                {% endif %}
+                
+                <div>
+                    <label for="id_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Titre de l'événement</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        {% for error in form.title.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_location" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lieu</label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                        {% for error in form.location.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        {% for error in form.description.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date et Heure</label>
+                    {{ form.date }}
+                    {% if form.date.errors %}
+                        {% for error in form.date.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="w-full btn-primary">
+                    {% if form.instance.pk %}Modifier{% else %}Créer{% endif %} l'événement
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr("#id_date", {
+        enableTime: true,
+        dateFormat: "Y-m-d\\TH:i",
+        time_24hr: true
+    });
+</script>
+{% endblock %}
+
