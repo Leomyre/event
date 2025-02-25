@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-be%(ui9od9q%c@#ddc#22)dw%#!f_l78ra^j7986cqw7tw(*q!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['eventotaku.onrender.com']
 
 # Redirige vers 'inbox' après connexion
 LOGIN_URL = '/accounts/login/'
